@@ -1,8 +1,15 @@
 from django.urls import path
-from.views import main_page, test_view, post_detail_view
+from.views import (
+    post_list_view,
+    post_detail_view,
+    post_search_view,
+    post_create_view,
+)
 
 urlpatterns = [
-    path('', main_page),
-    path('posts/', test_view),
+    path('', post_list_view),
+    path('posts/', post_search_view),
+    path('posts/create/', post_create_view),
     path('posts/<int:id>/', post_detail_view),
+
 ]

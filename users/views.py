@@ -1,27 +1,32 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.contrib.auth.models import User
-from django.contrib.auth import login as login_
-# Create your views here.
+from django.shortcuts import render, redirect
+from django.contrib.auth import login as login_, authenticate, logout as logout_
 
 from .forms import AuthForm
 
 
 def login(request):
-    print(request.method)
-    if request.method == 'GET':
-        form = AuthForm()
-        return render(
-        request,
-        'users/login.html',
-        {
-            'form': form,
-        }
-    )
+    if request.user.is_authenticated:
+        return redirect('/posts/')
     else:
-        return HttpResponse('not av.')
+        if request.method == 'GET':
+            form = AuthForm()
+        else:
+            form = AuthForm(request.POST)
+            if form.is_valid():
+                user = authenticate(
+                    request,
+                    username=form.cleaned_data['username'],
+                    password=form.cleaned_data['password'],
+                )
+
+                if user:
+                    login_(request, user)
+                else:
+                    form.add_error('username', 'Данные для входа неверные')
+
+        return render(request, 'users/login.html', {'form': form})
 
 
 def logout(request):
-    return HttpResponse
-
+    logout_(request)
+    return redirect('/login/')
